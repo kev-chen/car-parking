@@ -7,6 +7,14 @@ import useCurrentLocation from '../hooks/CurrentLocation';
 
 const MapUnderlay = (props) => {
   const location = useCurrentLocation();
+  const parkingLocation = { latitude: 40.759, longitude: -73.512 };
+
+  const getLocations = () => {
+    return [
+      { latitude: location.latitude, longitude: location.longitude },
+      { latitude: parkingLocation.latitude, longitude: parkingLocation.longitude },
+    ];
+  };
 
   useEffect(() => {
     if (location) {
@@ -21,11 +29,11 @@ const MapUnderlay = (props) => {
         initialRegion={{ latitude: 0, longitude: 0, latitudeDelta: 0, longitudeDelta: 0 }}
         style={styles.map}
         showsUserLocation={true}
-        followUserLocation={true}
-      />
+        followUserLocation={true}>
+        <MapView.Marker coordinate={parkingLocation} title={'title'} description={'description'} />
+      </MapView>
       <ActionButton
         buttonColor="white"
-        offsetY={150}
         renderIcon={(active) => <Icon name="ios-add" style={styles.actionButtonIcon} />}>
         <ActionButton.Item
           buttonColor="white"
@@ -35,6 +43,17 @@ const MapUnderlay = (props) => {
           }}>
           <Icon name="md-navigate" style={styles.actionButtonIcon} />
         </ActionButton.Item>
+        <ActionButton.Item
+          buttonColor="white"
+          title="Parking Location"
+          onPress={() => {
+            this.map.fitToCoordinates(getLocations(), {
+              edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+              animated: true,
+            });
+          }}>
+          <Icon name="md-car" style={styles.actionButtonIcon} />
+        </ActionButton.Item>
       </ActionButton>
     </View>
   );
@@ -42,13 +61,12 @@ const MapUnderlay = (props) => {
 
 const styles = StyleSheet.create({
   map: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
+    flex: 1,
+    // position: 'absolute',
+    // top: 0,
+    // bottom: 0,
+    // left: 0,
+    // right: 0,
   },
   actionButtonIcon: {
     fontSize: 20,

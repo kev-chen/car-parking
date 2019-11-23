@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { SafeAreaView, View, StyleSheet } from 'react-native';
 import Colors from '../constants/colors';
 import CText from './CText';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -12,10 +12,12 @@ const Header = (props) => {
   const geocode = useGeocode(location);
 
   return (
-    <Card style={styles.header}>
-      <Location geocode={geocode} />
-      <MenuIcon />
-    </Card>
+    <SafeAreaView style={styles.container}>
+      <Card style={styles.header}>
+        <Location geocode={geocode} />
+        <MenuIcon />
+      </Card>
+    </SafeAreaView>
   );
 };
 
@@ -40,15 +42,20 @@ const MenuIcon = (props) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    height: '15%',
+  },
   header: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: '15%',
-    position: 'absolute',
-    paddingTop: 60,
+    height: '100%',
     paddingHorizontal: 25,
+    shadowOffset: { width: 0, height: 15 },
+    shadowRadius: 9,
+    shadowOpacity: 0.1,
   },
   leftContainer: {
     flex: 4,
