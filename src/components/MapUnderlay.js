@@ -6,39 +6,46 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import useCurrentLocation from '../hooks/CurrentLocation';
 import ParkingService from '../services/ParkingService';
 import ParkingModel from '../models/ParkingModel';
+import Colors from '../constants/colors';
 
-const parkingSpot = { latitude: 40.759, longitude: -73.512 };
-
-/*
-40.760547
--73.514018
-*/
-
-function locationToModel(location) {
-  if (!location) {
-    return;
-  }
-  return new ParkingModel(location.latitude, location.longitude);
-}
+const deltas = { latitudeDelta: 0.001, longitudeDelta: 0.001 };
 
 const MapUnderlay = (props) => {
-  const [parkingLocation, setParkingLocation] = useState(ParkingService.findActive());
-  const location = useCurrentLocation();
+  const [parkingLocation, setParkingLocation] = useState(ParkingService.findActive()[0]);
+  const { currentLocation } = useCurrentLocation();
 
   useEffect(() => {
-    if (location) {
-      this.map.animateToRegion(location, 1000);
+    if (currentLocation) {
+      this.map.animateToRegion({ ...currentLocation, ...deltas }, 500);
     }
-  }, [location]);
+  }, [currentLocation]);
+
+  const renderSaveButton = () => {
+    if (!parkingLocation) {
+      return (
+        <ActionButton.Item
+          buttonColor="white"
+          title="Save Parking"
+          onPress={() => {
+            ParkingService.save(
+              new ParkingModel(currentLocation.latitude, currentLocation.longitude),
+            );
+            setParkingLocation(ParkingService.findActive()[0]);
+          }}>
+          <Icon name="ios-save" style={styles.actionButtonIcon} />
+        </ActionButton.Item>
+      );
+    }
+  };
 
   const renderParkingButton = () => {
-    if (parkingLocation.length > 0) {
+    if (parkingLocation) {
       return (
         <ActionButton.Item
           buttonColor="white"
           title="Parking Location"
           onPress={() => {
-            this.map.fitToCoordinates(getLocations(), {
+            this.map.fitToCoordinates([currentLocation, parkingLocation], {
               edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
               animated: true,
             });
@@ -49,31 +56,15 @@ const MapUnderlay = (props) => {
     }
   };
 
-  const renderSaveButton = () => {
-    if (parkingLocation.length <= 0) {
-      return (
-        <ActionButton.Item
-          buttonColor="white"
-          title="Save Parking"
-          onPress={() => {
-            ParkingService.save(new ParkingModel(location.latitude, location.longitude));
-            setParkingLocation(ParkingService.findActive());
-          }}>
-          <Icon name="ios-save" style={styles.actionButtonIcon} />
-        </ActionButton.Item>
-      );
-    }
-  };
-
   const renderDeleteButton = () => {
-    if (parkingLocation.length > 0) {
+    if (parkingLocation) {
       return (
         <ActionButton.Item
           buttonColor="white"
           title="Delete Parking"
           onPress={() => {
-            ParkingService.delete(parkingLocation[0]);
-            setParkingLocation(ParkingService.findActive());
+            ParkingService.delete(parkingLocation);
+            setParkingLocation(ParkingService.findActive()[0]);
           }}>
           <Icon name="ios-trash" style={styles.actionButtonIcon} />
         </ActionButton.Item>
@@ -81,26 +72,24 @@ const MapUnderlay = (props) => {
     }
   };
 
-  const getLocations = () => {
-    return [
-      { latitude: location.latitude, longitude: location.longitude },
-      { latitude: parkingLocation[0].latitude, longitude: parkingLocation[0].longitude },
-    ];
+  const renderParkingMarker = () => {
+    if (parkingLocation) {
+      return (
+        <MapView.Marker coordinate={parkingLocation} title={'title'} description={'description'} />
+      );
+    }
   };
 
-  const renderParkingMarker = () => {
-    if (parkingLocation.length <= 0) {
-      return;
-    }
-
-    const { latitude, longitude } = parkingLocation[0];
-
+  const renderCurrentLocationButton = () => {
     return (
-      <MapView.Marker
-        coordinate={{ latitude, longitude }}
-        title={'title'}
-        description={'description'}
-      />
+      <ActionButton.Item
+        buttonColor="white"
+        title="Current Location"
+        onPress={() => {
+          this.map.animateToRegion(currentLocation, 500);
+        }}>
+        <Icon name="md-navigate" style={styles.actionButtonIcon} />
+      </ActionButton.Item>
     );
   };
 
@@ -120,14 +109,7 @@ const MapUnderlay = (props) => {
         {renderParkingButton()}
         {renderDeleteButton()}
         {renderSaveButton()}
-        <ActionButton.Item
-          buttonColor="white"
-          title="Current Location"
-          onPress={() => {
-            this.map.animateToRegion(location, 500);
-          }}>
-          <Icon name="md-navigate" style={styles.actionButtonIcon} />
-        </ActionButton.Item>
+        {renderCurrentLocationButton()}
       </ActionButton>
     </View>
   );
@@ -136,16 +118,11 @@ const MapUnderlay = (props) => {
 const styles = StyleSheet.create({
   map: {
     flex: 1,
-    // position: 'absolute',
-    // top: 0,
-    // bottom: 0,
-    // left: 0,
-    // right: 0,
   },
   actionButtonIcon: {
     fontSize: 20,
     height: 22,
-    color: 'blue',
+    color: Colors.salmon,
   },
 });
 

@@ -1,32 +1,27 @@
 import { useEffect, useState } from 'react';
+import { Alert } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
 const useCurrentLocation = () => {
-  const [result, setResult] = useState({});
+  const [currentLocation, setLocation] = useState({});
+
+  const onChange = ({ coords }) => {
+    setLocation({
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+    });
+  };
+
+  const onError = (error) => {
+    Alert.alert(error);
+  };
 
   useEffect(() => {
-    geolocationPromise().then((location) => setResult(location));
+    let watcher = Geolocation.watchPosition(onChange, onError);
+    return () => Geolocation.clearWatch(watcher);
   }, []);
 
-  return result;
-};
-
-const geolocationPromise = () => {
-  return new Promise((resolve, reject) => {
-    Geolocation.getCurrentPosition(
-      (position) => {
-        let location = {
-          latitude: parseFloat(position.coords.latitude),
-          longitude: parseFloat(position.coords.longitude),
-          latitudeDelta: 0.001,
-          longitudeDelta: 0.001,
-        };
-        resolve(location);
-      },
-      (error) => reject(error),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
-    );
-  });
+  return { currentLocation };
 };
 
 export default useCurrentLocation;

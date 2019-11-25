@@ -8,8 +8,8 @@ import useCurrentLocation from '../hooks/CurrentLocation';
 import useGeocode from '../hooks/Geocode';
 
 const Header = (props) => {
-  const location = useCurrentLocation();
-  const geocode = useGeocode(location);
+  const { currentLocation } = useCurrentLocation();
+  const geocode = useGeocode(currentLocation);
 
   return (
     <SafeAreaView style={styles.container}>
