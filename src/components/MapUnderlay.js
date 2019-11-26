@@ -8,10 +8,11 @@ import ParkingService from '../services/ParkingService';
 import ParkingModel from '../models/ParkingModel';
 import Colors from '../constants/colors';
 import DISTANCE from '../constants/distance';
+import CText from './CText';
 
 const deltas = { latitudeDelta: 0.001, longitudeDelta: 0.001 };
 
-function distanceInMeters(currentLatLng, parkingLatLng) {
+const distanceInMeters = (currentLatLng, parkingLatLng) => {
   if (
     currentLatLng.latitude === parkingLatLng.latitude &&
     currentLatLng.longitude === parkingLatLng.longitude
@@ -30,7 +31,7 @@ function distanceInMeters(currentLatLng, parkingLatLng) {
   }
   dist = ((Math.acos(dist) * 180) / Math.PI) * 60 * 1.1515 * 1609.344;
   return dist;
-}
+};
 
 const MapUnderlay = (props) => {
   const [parkingLocation, setParkingLocation] = useState(ParkingService.findParking()[0]);
@@ -38,10 +39,10 @@ const MapUnderlay = (props) => {
 
   useEffect(() => {
     if (currentLocation) {
+      this.map.animateToRegion({ ...currentLocation, ...deltas }, 500);
+
       if (parkingLocation) {
         const distance = distanceInMeters(currentLocation, parkingLocation);
-        console.log(distance);
-        console.log(parkingLocation);
         if (parkingLocation.isActive) {
           if (distance < DISTANCE) {
             Alert.alert("You've reached your parking spot");
@@ -54,7 +55,6 @@ const MapUnderlay = (props) => {
           }
         }
       }
-      this.map.animateToRegion({ ...currentLocation, ...deltas }, 500);
     }
   }, [currentLocation, parkingLocation]);
 
@@ -126,7 +126,7 @@ const MapUnderlay = (props) => {
         onPress={() => {
           this.map.animateToRegion(currentLocation, 500);
         }}>
-        <Icon name="md-navigate" style={styles.actionButtonIcon} />
+        <Icon name="md-locate" style={styles.actionButtonIcon} />
       </ActionButton.Item>
     );
   };
