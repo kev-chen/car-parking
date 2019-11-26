@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Alert } from 'react-native';
 import ActionButton from 'react-native-action-button';
 import MapView from 'react-native-maps';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -7,18 +7,56 @@ import useCurrentLocation from '../hooks/CurrentLocation';
 import ParkingService from '../services/ParkingService';
 import ParkingModel from '../models/ParkingModel';
 import Colors from '../constants/colors';
+import DISTANCE from '../constants/distance';
 
 const deltas = { latitudeDelta: 0.001, longitudeDelta: 0.001 };
 
+function distanceInMeters(currentLatLng, parkingLatLng) {
+  if (
+    currentLatLng.latitude === parkingLatLng.latitude &&
+    currentLatLng.longitude === parkingLatLng.longitude
+  ) {
+    return 0;
+  }
+
+  let radlat1 = (Math.PI * currentLatLng.latitude) / 180;
+  let radlat2 = (Math.PI * parkingLatLng.latitude) / 180;
+  let radtheta = (Math.PI * (currentLatLng.longitude - parkingLatLng.longitude)) / 180;
+  let dist =
+    Math.sin(radlat1) * Math.sin(radlat2) +
+    Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+  if (dist > 1) {
+    dist = 1;
+  }
+  dist = ((Math.acos(dist) * 180) / Math.PI) * 60 * 1.1515 * 1609.344;
+  return dist;
+}
+
 const MapUnderlay = (props) => {
-  const [parkingLocation, setParkingLocation] = useState(ParkingService.findActive()[0]);
+  const [parkingLocation, setParkingLocation] = useState(ParkingService.findParking()[0]);
   const { currentLocation } = useCurrentLocation();
 
   useEffect(() => {
     if (currentLocation) {
+      if (parkingLocation) {
+        const distance = distanceInMeters(currentLocation, parkingLocation);
+        console.log(distance);
+        console.log(parkingLocation);
+        if (parkingLocation.isActive) {
+          if (distance < DISTANCE) {
+            Alert.alert("You've reached your parking spot");
+            ParkingService.delete(parkingLocation);
+            setParkingLocation(ParkingService.findParking()[0]);
+          }
+        } else {
+          if (distance >= DISTANCE) {
+            ParkingService.setActive(parkingLocation);
+          }
+        }
+      }
       this.map.animateToRegion({ ...currentLocation, ...deltas }, 500);
     }
-  }, [currentLocation]);
+  }, [currentLocation, parkingLocation]);
 
   const renderSaveButton = () => {
     if (!parkingLocation) {
@@ -30,7 +68,7 @@ const MapUnderlay = (props) => {
             ParkingService.save(
               new ParkingModel(currentLocation.latitude, currentLocation.longitude),
             );
-            setParkingLocation(ParkingService.findActive()[0]);
+            setParkingLocation(ParkingService.findParking()[0]);
           }}>
           <Icon name="ios-save" style={styles.actionButtonIcon} />
         </ActionButton.Item>
@@ -64,7 +102,7 @@ const MapUnderlay = (props) => {
           title="Delete Parking"
           onPress={() => {
             ParkingService.delete(parkingLocation);
-            setParkingLocation(ParkingService.findActive()[0]);
+            setParkingLocation(ParkingService.findParking()[0]);
           }}>
           <Icon name="ios-trash" style={styles.actionButtonIcon} />
         </ActionButton.Item>

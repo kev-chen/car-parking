@@ -8,7 +8,7 @@ class ParkingModel {
     this.latitude = latitude;
     this.longitude = longitude;
     this.createdAt = new Date();
-    this.isActive = true;
+    this.isActive = false;
   }
 }
 

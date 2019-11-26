@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
+import DISTANCE from '../constants/distance';
 
 const useCurrentLocation = () => {
   const [currentLocation, setLocation] = useState({});
@@ -17,7 +18,12 @@ const useCurrentLocation = () => {
   };
 
   useEffect(() => {
-    let watcher = Geolocation.watchPosition(onChange, onError);
+    let watcher = Geolocation.watchPosition(onChange, onError, {
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 2000,
+      distanceFilter: DISTANCE,
+    });
     return () => Geolocation.clearWatch(watcher);
   }, []);
 
