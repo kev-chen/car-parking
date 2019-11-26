@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
 import ActionButton from 'react-native-action-button';
 import MapView from 'react-native-maps';
@@ -8,21 +8,17 @@ import ParkingService from '../services/ParkingService';
 import ParkingModel from '../models/ParkingModel';
 import Colors from '../constants/colors';
 import DISTANCE from '../constants/distance';
-import CText from './CText';
 
 const deltas = { latitudeDelta: 0.001, longitudeDelta: 0.001 };
 
-const distanceInMeters = (currentLatLng, parkingLatLng) => {
-  if (
-    currentLatLng.latitude === parkingLatLng.latitude &&
-    currentLatLng.longitude === parkingLatLng.longitude
-  ) {
+const distanceInMeters = (latLng1, latLng2) => {
+  if (latLng1.latitude === latLng2.latitude && latLng1.longitude === latLng2.longitude) {
     return 0;
   }
 
-  let radlat1 = (Math.PI * currentLatLng.latitude) / 180;
-  let radlat2 = (Math.PI * parkingLatLng.latitude) / 180;
-  let radtheta = (Math.PI * (currentLatLng.longitude - parkingLatLng.longitude)) / 180;
+  let radlat1 = (Math.PI * latLng1.latitude) / 180;
+  let radlat2 = (Math.PI * latLng2.latitude) / 180;
+  let radtheta = (Math.PI * (latLng1.longitude - latLng2.longitude)) / 180;
   let dist =
     Math.sin(radlat1) * Math.sin(radlat2) +
     Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
@@ -36,21 +32,28 @@ const distanceInMeters = (currentLatLng, parkingLatLng) => {
 const MapUnderlay = (props) => {
   const [parkingLocation, setParkingLocation] = useState(ParkingService.findParking()[0]);
   const { currentLocation } = useCurrentLocation();
+  const lastPosition = useRef({ latitude: 0, longitude: 0 });
 
   useEffect(() => {
-    if (currentLocation) {
-      this.map.animateToRegion({ ...currentLocation, ...deltas }, 500);
+    if (currentLocation.latitude && currentLocation.longitude) {
+      // Redraw map if necessary
+      const distanceMoved = distanceInMeters(currentLocation, lastPosition.current);
+      if (distanceMoved >= DISTANCE.MAP_UPDATE_THRESHOLD) {
+        this.map.animateToRegion({ ...currentLocation, ...deltas }, 500);
+      }
+      lastPosition.current = currentLocation;
 
+      // Manage the state of the parking object
       if (parkingLocation) {
         const distance = distanceInMeters(currentLocation, parkingLocation);
         if (parkingLocation.isActive) {
-          if (distance < DISTANCE) {
+          if (distance < DISTANCE.FILTER) {
             Alert.alert("You've reached your parking spot");
             ParkingService.delete(parkingLocation);
             setParkingLocation(ParkingService.findParking()[0]);
           }
         } else {
-          if (distance >= DISTANCE) {
+          if (distance >= DISTANCE.INACTIVE_THRESHOLD) {
             ParkingService.setActive(parkingLocation);
           }
         }
@@ -135,7 +138,7 @@ const MapUnderlay = (props) => {
     <View style={styles.map}>
       <MapView
         ref={(ref) => (this.map = ref)}
-        initialRegion={{ latitude: 0, longitude: 0, latitudeDelta: 0, longitudeDelta: 0 }}
+        initialRegion={{ ...lastPosition.current, ...deltas }}
         style={styles.map}
         showsUserLocation={true}
         followUserLocation={true}>

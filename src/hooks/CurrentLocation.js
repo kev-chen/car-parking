@@ -22,7 +22,7 @@ const useCurrentLocation = () => {
       enableHighAccuracy: true,
       timeout: 20000,
       maximumAge: 2000,
-      distanceFilter: DISTANCE,
+      distanceFilter: DISTANCE.FILTER,
     });
     return () => Geolocation.clearWatch(watcher);
   }, []);
