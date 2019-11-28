@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Alert } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import ActionButton from 'react-native-action-button';
 import MapView from 'react-native-maps';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -8,6 +8,7 @@ import ParkingService from '../services/ParkingService';
 import ParkingModel from '../models/ParkingModel';
 import Colors from '../constants/colors';
 import DISTANCE from '../constants/distance';
+import ParkingReached from '../components/ParkingReached';
 
 const deltas = { latitudeDelta: 0.001, longitudeDelta: 0.001 };
 
@@ -33,6 +34,7 @@ const MapUnderlay = (props) => {
   const [parkingLocation, setParkingLocation] = useState(ParkingService.findParking()[0]);
   const { currentLocation } = useCurrentLocation();
   const lastPosition = useRef({ latitude: 0, longitude: 0 });
+  const [returnedToParking, setReturnedToParking] = useState(false);
 
   useEffect(() => {
     if (currentLocation.latitude && currentLocation.longitude) {
@@ -45,15 +47,13 @@ const MapUnderlay = (props) => {
 
       // Manage the state of the parking object
       if (parkingLocation) {
-        const distance = distanceInMeters(currentLocation, parkingLocation);
+        const distanceToParking = distanceInMeters(currentLocation, parkingLocation);
         if (parkingLocation.isActive) {
-          if (distance < DISTANCE.FILTER) {
-            Alert.alert("You've reached your parking spot");
-            ParkingService.delete(parkingLocation);
-            setParkingLocation(ParkingService.findParking()[0]);
+          if (distanceToParking < DISTANCE.FILTER) {
+            setReturnedToParking(true);
           }
         } else {
-          if (distance >= DISTANCE.INACTIVE_THRESHOLD) {
+          if (distanceToParking >= DISTANCE.INACTIVE_THRESHOLD) {
             ParkingService.setActive(parkingLocation);
           }
         }
@@ -61,18 +61,21 @@ const MapUnderlay = (props) => {
     }
   }, [currentLocation, parkingLocation]);
 
+  const deleteParking = () => {
+    console.log('deleteParking Called');
+    ParkingService.delete(parkingLocation);
+    setParkingLocation(ParkingService.findParking()[0]);
+  };
+
+  const saveParking = () => {
+    ParkingService.save(new ParkingModel(currentLocation.latitude, currentLocation.longitude));
+    setParkingLocation(ParkingService.findParking()[0]);
+  };
+
   const renderSaveButton = () => {
     if (!parkingLocation) {
       return (
-        <ActionButton.Item
-          buttonColor="white"
-          title="Save Parking"
-          onPress={() => {
-            ParkingService.save(
-              new ParkingModel(currentLocation.latitude, currentLocation.longitude),
-            );
-            setParkingLocation(ParkingService.findParking()[0]);
-          }}>
+        <ActionButton.Item buttonColor="white" title="Save Parking" onPress={saveParking}>
           <Icon name="ios-save" style={styles.actionButtonIcon} />
         </ActionButton.Item>
       );
@@ -100,13 +103,7 @@ const MapUnderlay = (props) => {
   const renderDeleteButton = () => {
     if (parkingLocation) {
       return (
-        <ActionButton.Item
-          buttonColor="white"
-          title="Delete Parking"
-          onPress={() => {
-            ParkingService.delete(parkingLocation);
-            setParkingLocation(ParkingService.findParking()[0]);
-          }}>
+        <ActionButton.Item buttonColor="white" title="Delete Parking" onPress={deleteParking}>
           <Icon name="ios-trash" style={styles.actionButtonIcon} />
         </ActionButton.Item>
       );
@@ -127,7 +124,7 @@ const MapUnderlay = (props) => {
         buttonColor="white"
         title="Current Location"
         onPress={() => {
-          this.map.animateToRegion(currentLocation, 500);
+          this.map.animateToRegion({ ...currentLocation, ...deltas }, 500);
         }}>
         <Icon name="md-locate" style={styles.actionButtonIcon} />
       </ActionButton.Item>
@@ -144,6 +141,7 @@ const MapUnderlay = (props) => {
         followUserLocation={true}>
         {renderParkingMarker()}
       </MapView>
+
       <ActionButton
         buttonColor="white"
         renderIcon={(active) => <Icon name="ios-add" style={styles.actionButtonIcon} />}>
@@ -152,6 +150,12 @@ const MapUnderlay = (props) => {
         {renderSaveButton()}
         {renderCurrentLocationButton()}
       </ActionButton>
+
+      <ParkingReached
+        visible={returnedToParking}
+        onPressHandler={setReturnedToParking}
+        onDismiss={deleteParking}
+      />
     </View>
   );
 };
