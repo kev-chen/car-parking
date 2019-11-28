@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, SafeAreaView, View, Modal } from 'react-native';
 import Card from './Card';
-import CText from './CText';
+import ThemedText from './ThemedText';
 import ThemedButton from './ThemedButton';
 
 const ParkingReached = (props) => {
@@ -15,7 +15,7 @@ const ParkingReached = (props) => {
       <View style={styles.container}>
         <Card style={styles.card}>
           <SafeAreaView>
-            <CText style={styles.text}>You've reached your parking spot</CText>
+            <ThemedText style={styles.text}>You've reached your parking spot</ThemedText>
             <ThemedButton
               title="Okay"
               onPress={() => {

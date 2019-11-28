@@ -1,13 +1,13 @@
 import React from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import COLORS from '../constants/colors';
-import CText from './CText';
+import ThemedText from './ThemedText';
 
 const ThemedButton = (props) => {
   return (
     <TouchableOpacity onPress={props.onPress}>
       <View style={{ ...styles.container, ...props.style }}>
-        <CText style={styles.text}>{props.title}</CText>
+        <ThemedText style={styles.text}>{props.title}</ThemedText>
       </View>
     </TouchableOpacity>
   );

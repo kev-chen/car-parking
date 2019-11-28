@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 
-const CText = (props) => {
+const ThemedText = (props) => {
   return <Text style={{ ...styles.textStyle, ...props.style }}>{props.children}</Text>;
 };
 
@@ -11,4 +11,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CText;
+export default ThemedText;

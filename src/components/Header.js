@@ -1,7 +1,7 @@
 import React from 'react';
 import { SafeAreaView, View, StyleSheet } from 'react-native';
 import Colors from '../constants/colors';
-import CText from './CText';
+import ThemedText from './ThemedText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Card from './Card';
 import useCurrentLocation from '../hooks/CurrentLocation';
@@ -26,8 +26,8 @@ const Location = (props) => {
     <View style={styles.leftContainer}>
       <Icon name="ios-navigate" size={25} color={Colors.salmon} />
       <View style={styles.textContainer}>
-        <CText style={styles.label}>Detected Location</CText>
-        <CText style={styles.locationText}>{props.geocode}</CText>
+        <ThemedText style={styles.label}>Detected Location</ThemedText>
+        <ThemedText style={styles.locationText}>{props.geocode}</ThemedText>
       </View>
     </View>
   );
