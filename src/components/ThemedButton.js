@@ -5,7 +5,7 @@ import ThemedText from './ThemedText';
 
 const ThemedButton = (props) => {
   return (
-    <TouchableOpacity onPress={props.onPress}>
+    <TouchableOpacity activeOpacity={0.75} onPress={props.onPress}>
       <View style={{ ...styles.container, ...props.style }}>
         <ThemedText style={styles.text}>{props.title}</ThemedText>
       </View>
