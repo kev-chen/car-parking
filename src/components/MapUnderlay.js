@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Image } from 'react-native';
 import ActionButton from 'react-native-action-button';
 import MapView from 'react-native-maps';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -113,7 +113,9 @@ const MapUnderlay = (props) => {
   const renderParkingMarker = () => {
     if (parkingLocation) {
       return (
-        <MapView.Marker coordinate={parkingLocation} title={'title'} description={'description'} />
+        <MapView.Marker coordinate={parkingLocation}>
+          <Image style={styles.marker} source={require('../../assets/marker.png')} />
+        </MapView.Marker>
       );
     }
   };
@@ -168,6 +170,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     height: 22,
     color: Colors.salmon,
+  },
+  marker: {
+    width: 60,
+    height: 60,
+    marginBottom: 40,
   },
 });
 
