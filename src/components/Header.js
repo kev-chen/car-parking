@@ -12,31 +12,22 @@ const Header = (props) => {
   const geocode = useGeocode(currentLocation);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Card style={styles.header}>
+    <Card style={styles.container}>
+      <SafeAreaView style={styles.header}>
         <Location geocode={geocode} />
-        <MenuIcon />
-      </Card>
-    </SafeAreaView>
+      </SafeAreaView>
+    </Card>
   );
 };
 
 const Location = (props) => {
   return (
-    <View style={styles.leftContainer}>
+    <View style={styles.itemsContainer}>
       <Icon name="ios-navigate" size={25} color={Colors.salmon} />
       <View style={styles.textContainer}>
         <ThemedText style={styles.label}>Detected Location</ThemedText>
         <ThemedText style={styles.locationText}>{props.geocode}</ThemedText>
       </View>
-    </View>
-  );
-};
-
-const MenuIcon = (props) => {
-  return (
-    <View style={styles.rightContainer}>
-      <Icon name="ios-menu" size={32} color={Colors.mediumGrey} />
     </View>
   );
 };
@@ -48,24 +39,15 @@ const styles = StyleSheet.create({
   },
   header: {
     width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     height: '100%',
-    paddingHorizontal: 25,
-    shadowOffset: { width: 0, height: 15 },
-    shadowRadius: 9,
-    shadowOpacity: 0.1,
+    marginHorizontal: 25,
+    marginTop: 10,
   },
-  leftContainer: {
+  itemsContainer: {
     flex: 4,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  rightContainer: {
-    flex: 3,
-    alignItems: 'flex-end',
-    justifyContent: 'center',
   },
   textContainer: {
     marginLeft: 20,
