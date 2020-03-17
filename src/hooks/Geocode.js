@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
-const apiKey = 'AIzaSyCh6iY2ewoNB5YaQ7mTGtOEf0RS2Usxy5A';
+import { GEOCODE_API_KEY } from 'react-native-dotenv';
+
 const baseURL = 'https://maps.googleapis.com/maps/api/geocode/';
 
 const useGeocode = (location) => {
@@ -11,7 +12,9 @@ const useGeocode = (location) => {
       return;
     }
 
-    fetch(`${baseURL}json?address=${location.latitude},${location.longitude}&key=${apiKey}`)
+    fetch(
+      `${baseURL}json?address=${location.latitude},${location.longitude}&key=${GEOCODE_API_KEY}`,
+    )
       .then((response) => response.json())
       .then((responseJson) => {
         const addressComponents = responseJson.results[0].address_components;
@@ -23,7 +26,10 @@ const useGeocode = (location) => {
         )[0].short_name;
 
         setResult(`${city}, ${state}`);
-      });
+      })
+      .catch((error) => {
+        console.log(error);
+      })
   }, [location]);
 
   return result;

@@ -224,7 +224,7 @@ PODS:
     - React-cxxreact (= 0.61.4)
     - React-jsi (= 0.61.4)
     - ReactCommon/jscallinvoker (= 0.61.4)
-  - RealmJS (3.4.2):
+  - RealmJS (3.6.5):
     - GCDWebServer
     - React
   - RNVectorIcons (6.6.0):
@@ -359,7 +359,7 @@ SPEC CHECKSUMS:
   React-RCTText: 21934e0a51d522abcd0a275407e80af45d6fd9ec
   React-RCTVibration: 0f76400ee3cec6edb9c125da49fed279340d145a
   ReactCommon: a6a294e7028ed67b926d29551aa9394fd989c24c
-  RealmJS: 2dbe24ffdd6d82489942dac00b2b3d675f1227c6
+  RealmJS: b103c28012b1abfe13396ac82e76b4f4d9d47c0d
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   Yoga: ba3d99dbee6c15ea6bbe3783d1f0cb1ffb79af0f
 
